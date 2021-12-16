@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 if sys.version_info.major == 2:
     safe_ord = ord
 else:
-    def safe_ord(value: Any) -> int:    # type: ignore
+    def safe_ord(value: Any) -> int:
         if isinstance(value, int):
             return value
         else:
@@ -33,7 +33,7 @@ A = 0
 B = 7
 Gx = 55066263022277343669578718895168534326250603453777594175500187360389116729240
 Gy = 32670510020758816978083085130507043184471273380659243275938904335757337482424
-G = cast("PlainPoint2D", (Gx, Gy))
+G = (Gx, Gy)
 
 
 def bytes_to_int(x: bytes) -> int:
@@ -58,19 +58,19 @@ def inv(a: int, n: int) -> int:
 
 def to_jacobian(p: "PlainPoint2D") -> "PlainPoint3D":
     o = (p[0], p[1], 1)
-    return cast("PlainPoint3D", o)
+    return o
 
 
 def jacobian_double(p: "PlainPoint3D") -> "PlainPoint3D":
     if not p[1]:
-        return cast("PlainPoint3D", (0, 0, 0))
+        return (0, 0, 0)
     ysq = (p[1] ** 2) % P
     S = (4 * p[0] * ysq) % P
     M = (3 * p[0] ** 2 + A * p[2] ** 4) % P
     nx = (M**2 - 2 * S) % P
     ny = (M * (S - nx) - 8 * ysq ** 2) % P
     nz = (2 * p[1] * p[2]) % P
-    return cast("PlainPoint3D", (nx, ny, nz))
+    return (nx, ny, nz)
 
 
 def jacobian_add(p: "PlainPoint3D", q: "PlainPoint3D") -> "PlainPoint3D":
@@ -94,12 +94,12 @@ def jacobian_add(p: "PlainPoint3D", q: "PlainPoint3D") -> "PlainPoint3D":
     nx = (R ** 2 - H3 - 2 * U1H2) % P
     ny = (R * (U1H2 - nx) - S1 * H3) % P
     nz = (H * p[2] * q[2]) % P
-    return cast("PlainPoint3D", (nx, ny, nz))
+    return (nx, ny, nz)
 
 
 def from_jacobian(p: "PlainPoint3D") -> "PlainPoint2D":
     z = inv(p[2], P)
-    return cast("PlainPoint2D", ((p[0] * z**2) % P, (p[1] * z**3) % P))
+    return ((p[0] * z**2) % P, (p[1] * z**3) % P)
 
 
 def jacobian_multiply(a: "PlainPoint3D", n: int) -> "PlainPoint3D":   # type: ignore

@@ -9,7 +9,7 @@ extras_require = {
     ],
     'lint': [
         "flake8==3.5.0",
-        "mypy==0.641",
+        "mypy==0.910",
         "mypy-extensions>=0.4.1",
     ],
     'dev': [

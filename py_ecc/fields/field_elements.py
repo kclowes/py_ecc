@@ -39,7 +39,7 @@ class FQ(object):
     n = None  # type: int
     field_modulus = None  # type: int
 
-    def __init__(self: T_FQ, val: IntOrFQ) -> None:
+    def __init__(self: T_FQ, val: IntOrFQ[Union[int, FQ]]) -> None:
         if self.field_modulus is None:
             raise AttributeError("Field Modulus hasn't been specified")
 
@@ -53,7 +53,7 @@ class FQ(object):
                 .format(type(val))
             )
 
-    def __add__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __add__(self: T_FQ, other: IntOrFQ[Union[int, FQ]]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -66,7 +66,7 @@ class FQ(object):
 
         return type(self)((self.n + on) % self.field_modulus)
 
-    def __mul__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __mul__(self: T_FQ, other: IntOrFQ[Union[int, FQ]]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -79,13 +79,13 @@ class FQ(object):
 
         return type(self)((self.n * on) % self.field_modulus)
 
-    def __rmul__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rmul__(self: T_FQ, other: IntOrFQ[Union[int, FQ]]) -> T_FQ:
         return self * other
 
-    def __radd__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __radd__(self: T_FQ, other: IntOrFQ[Union[int, FQ]]) -> T_FQ:
         return self + other
 
-    def __rsub__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rsub__(self: T_FQ, other: IntOrFQ[Union[int, FQ]]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -98,7 +98,7 @@ class FQ(object):
 
         return type(self)((on - self.n) % self.field_modulus)
 
-    def __sub__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __sub__(self: T_FQ, other: IntOrFQ[Union[int, FQ]]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -111,7 +111,7 @@ class FQ(object):
 
         return type(self)((self.n - on) % self.field_modulus)
 
-    def __div__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __div__(self: T_FQ, other: IntOrFQ[Union[int, FQ]]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -126,10 +126,10 @@ class FQ(object):
             self.n * prime_field_inv(on, self.field_modulus) % self.field_modulus
         )
 
-    def __truediv__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __truediv__(self: T_FQ, other: IntOrFQ[Union[int, FQ]]) -> T_FQ:
         return self.__div__(other)
 
-    def __rdiv__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rdiv__(self: T_FQ, other: IntOrFQ[Union[int, FQ]]) -> T_FQ:
         if isinstance(other, FQ):
             on = other.n
         elif isinstance(other, int):
@@ -144,7 +144,7 @@ class FQ(object):
             prime_field_inv(self.n, self.field_modulus) * on % self.field_modulus
         )
 
-    def __rtruediv__(self: T_FQ, other: IntOrFQ) -> T_FQ:
+    def __rtruediv__(self: T_FQ, other: IntOrFQ[Union[int, FQ]]) -> T_FQ:
         return self.__rdiv__(other)
 
     def __pow__(self: T_FQ, other: int) -> T_FQ:
@@ -157,7 +157,7 @@ class FQ(object):
         else:
             return ((self * self) ** int(other // 2)) * self
 
-    def __eq__(self: T_FQ, other: IntOrFQ) -> bool:
+    def __eq__(self: T_FQ, other: object) -> bool:
         if isinstance(other, FQ):
             return self.n == other.n
         elif isinstance(other, int):
@@ -168,7 +168,7 @@ class FQ(object):
                 .format(type(other))
             )
 
-    def __ne__(self: T_FQ, other: IntOrFQ) -> bool:
+    def __ne__(self: T_FQ, other: object) -> bool:
         return not self == other
 
     def __neg__(self: T_FQ) -> T_FQ:
@@ -200,8 +200,8 @@ class FQP(object):
     field_modulus = None  # type: int
 
     def __init__(self,
-                 coeffs: Sequence[IntOrFQ],
-                 modulus_coeffs: Sequence[IntOrFQ] = ()) -> None:
+                 coeffs: Sequence[IntOrFQ[Union[int, FQ]]],
+                 modulus_coeffs: Sequence[IntOrFQ[Union[int, FQ]]] = ()) -> None:
         if self.field_modulus is None:
             raise AttributeError("Field Modulus hasn't been specified")
 
@@ -217,9 +217,9 @@ class FQP(object):
         )  # type: Type[FQ]
         self.coeffs = tuple(
             self.FQP_corresponding_FQ_class(c) for c in coeffs
-        )  # type: Tuple[IntOrFQ, ...]
+        )  # type: Tuple[IntOrFQ[Union[int, FQ]], ...]
         # The coefficients of the modulus, without the leading [1]
-        self.modulus_coeffs = tuple(modulus_coeffs)  # type: Tuple[IntOrFQ, ...]
+        self.modulus_coeffs = tuple(modulus_coeffs)  # type: Tuple[IntOrFQ[Union[int, FQ]], ...]
         # The degree of the extension field
         self.degree = len(self.modulus_coeffs)
 
@@ -265,7 +265,7 @@ class FQP(object):
 
     def __div__(self: T_FQP, other: Union[int, T_FQP]) -> T_FQP:
         if isinstance(other, int_types_or_FQ):
-            return type(self)([c / other for c in self.coeffs])
+            return type(self)([c / other for c in self.coeffs])  # type: ignore
         elif isinstance(other, FQP):
             return self * other.inv()
         else:
@@ -295,11 +295,13 @@ class FQP(object):
         )
         low, high = (
             # Ignore mypy yelling about the inner types for  the tuples being incompatible
-            cast(List[IntOrFQ], list(self.coeffs + (0,))),
-            cast(List[IntOrFQ], list(self.modulus_coeffs + (1,))),
+            # cast(List[IntOrFQ[Union[int, FQ]]], list(self.coeffs + (0,))),
+            list(self.coeffs + (0,)),
+            # cast(List[IntOrFQ[Union[int, FQ]]], list(self.modulus_coeffs + (1,))),
+            list(self.modulus_coeffs + (1,)),
         )
         while deg(low):
-            r = cast(List[IntOrFQ], list(poly_rounded_div(high, low)))
+            r = list(poly_rounded_div(high, low))
             r += [0] * (self.degree + 1 - len(r))
             nm = [x for x in hm]
             new = [x for x in high]
@@ -361,7 +363,7 @@ class FQ2(FQP):
     degree = 2
     FQ2_MODULUS_COEFFS = None  # type: FQ2_modulus_coeffs_type
 
-    def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
+    def __init__(self, coeffs: Sequence[IntOrFQ[Union[int, FQ]]]) -> None:
         if self.FQ2_MODULUS_COEFFS is None:
             raise AttributeError("FQ2 Modulus Coeffs haven't been specified")
 
@@ -375,7 +377,7 @@ class FQ12(FQP):
     degree = 12
     FQ12_MODULUS_COEFFS = None  # type: FQ12_modulus_coeffs_type
 
-    def __init__(self, coeffs: Sequence[IntOrFQ]) -> None:
+    def __init__(self, coeffs: Sequence[IntOrFQ[Union[int, FQ]]]) -> None:
         if self.FQ12_MODULUS_COEFFS is None:
             raise AttributeError("FQ12 Modulus Coeffs haven't been specified")
 

@@ -1,4 +1,4 @@
-from eth_typing import (
+from eth_typing.bls import (
     BLSSignature,
     BLSPubkey,
 )
@@ -8,7 +8,10 @@ from py_ecc.optimized_bls12_381 import (
     multiply,
     curve_order,
 )
-from py_ecc.typing import Optimized_Point3D
+from py_ecc.typing import (
+    Optimized_Point3D,
+    Optimized_Field,
+)
 
 from .hash import (
     i2osp,
@@ -28,7 +31,7 @@ from .typing import (
 )
 
 
-def subgroup_check(P: Optimized_Point3D) -> bool:
+def subgroup_check(P: Optimized_Point3D[Optimized_Field]) -> bool:
     return is_inf(multiply(P, curve_order))
 
 

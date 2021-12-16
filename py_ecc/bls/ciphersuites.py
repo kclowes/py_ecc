@@ -6,11 +6,11 @@ from math import (
     log2,
 )
 import abc
-from eth_typing import (
+from eth_typing.bls import (
     BLSPubkey,
     BLSSignature,
 )
-from eth_utils import (
+from eth_utils.exceptions import (
     ValidationError,
 )
 from hashlib import sha256
@@ -41,6 +41,9 @@ from .g2_primitives import (
     pubkey_to_G1,
     signature_to_G2,
     subgroup_check,
+)
+
+from py_ecc.optimized_bls12_381 import (
     is_inf,
 )
 
